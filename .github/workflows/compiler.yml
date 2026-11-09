@@ -1,0 +1,34 @@
+name: Build Seralyth Menu
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup .NET NuGet Settings
+      uses: NuGet/setup-nuget@v1
+      with:
+        nuget-version: 'latest'
+
+    - name: Restore NuGet Packages
+      run: nuget restore SeralythMenu.sln -PackagesDirectory packages
+
+    - name: Compile Mod Menu to DLL
+      run: msbuild SeralythMenu.sln /p:Configuration=Release /p:OutputPath=build/
+      
+    - name: Upload Finished DLL Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Compiled-Seralyth-Menu
+        path: build/
